@@ -1,0 +1,9 @@
+module.exports = {
+  reactStrictMode: true,
+  env: {
+    RPC_URL_1: 'https://mainnet.infura.io/v3/84842078b09946638c03157f83405213',
+    GOERLI_FDAI: '0x88271d333C72e51516B67f5567c728E702b3eeE8',
+    MUMBAI_FDAI: '0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7',
+    MUMBAI_FDAIX: '0x5D8B4C2554aeB7e86F387B4d6c00Ac33499Ed01f'
+  }
+}

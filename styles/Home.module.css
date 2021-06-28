@@ -1,0 +1,59 @@
+.container {
+  min-height: 100vh;
+  min-width: 100vw;
+  padding: 0 0.5rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: black;
+  background-image: url('../public/ethflix.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: solid 3px rgba(0,0,0,.5);
+
+}
+
+.main {
+  padding: 5rem 0;
+  flex: 1;
+  display: block;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: grey;
+  height: 30vh;
+  width: 40vw;
+}
+
+.footer {
+  width: 100%;
+  height: 100px;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.connectButton{
+  position: absolute;
+  right: 2rem;
+  top: 2rem;
+  height: 2.5rem;
+  border: solid 2px steelblue;
+  background-color: black;
+  color: white;
+  border-radius: 6px;
+}
+
+.connectButton:hover {
+  border-color: red;
+}
+
+@media (max-width: 600px) {
+  .grid {
+    width: 100%;
+    flex-direction: column;
+  }
+}

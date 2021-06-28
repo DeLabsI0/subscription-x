@@ -1,0 +1,117 @@
+.portalContainer{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    min-width: 400px;
+    min-height: 280px;
+    max-width: 40vw;
+    left: 50vw;
+    top: 50vh;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 40, 70, .7);
+    border: solid 2px black;
+    border-radius: 8px;
+    padding-bottom: 1rem;
+}
+
+.overlay{
+    position: fixed;
+    border: none;
+    margin: none;
+    padding: none;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, .8);
+}
+
+.closeButton {
+    position: absolute;
+    border: solid 1px white;
+    padding: none;
+    background-color: black;
+    color: red;
+    display: absolute;
+    right:1vh;
+    top:1vh;
+    border-radius: 2px;
+}
+
+.nextButton {
+    position: absolute;
+    margin: none;
+    padding: none;
+    border: none;
+    right: 1.5vw;
+    bottom: 2vh;
+    color: red;
+    background-color: black;
+    border: solid 1px white;
+    border-radius: 2px;
+    
+}
+
+.lastButton {
+    position: absolute;
+    margin: none;
+    padding: none;
+    border: none;
+    left: 1.5vw;
+    bottom: 2vh;
+    color: red;
+    background-color: black;
+    border: solid 1px white;
+    border-radius: 2px;
+    
+}
+
+.closeButton:hover, .nextButton:hover, .lastButton:hover {
+    color: black;
+    background-color: white;
+    border: solid 1px black;
+}
+
+.iconStyle{
+    display: block;
+    align-self: center;
+    min-width: 1rem;
+    min-height: 1.5rem;
+}
+
+.checkStyle{
+    margin: -.6rem;
+    display: block;
+    height: .9rem;
+}
+
+.daiBalance {
+    display: flex;
+    margin-right: 0;
+    flex-basis: 50%;
+    flex-grow: 4;
+    align-items: center;
+    flex-grow: 4;
+    font-size: 2rem;
+    align-self: stretch;
+    padding-right: 0;
+}
+
+.symbolBox {
+    padding-bottom: 0;
+    margin: 0;
+    text-align: center;
+    align-content: center;
+    align-self: flex-start;
+    flex-basis: 50%;
+}
+
+.daiPic{
+    width: 15%;
+    margin-left: 2rem;
+    margin-right: 1rem;
+    float: left;
+    transform: translate(0%, 5%);
+}
