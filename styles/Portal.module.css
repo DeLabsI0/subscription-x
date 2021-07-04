@@ -35,8 +35,8 @@
     background-color: black;
     color: red;
     display: absolute;
-    right:1vh;
-    top:1vh;
+    right:.5rem;
+    top:.5rem;
     border-radius: 2px;
 }
 
@@ -79,6 +79,13 @@
     align-self: center;
     min-width: 1rem;
     min-height: 1.5rem;
+}
+
+.xStyle{
+    display: block;
+    align-self: center;
+    min-width: .5rem;
+    min-height: .5rem;
 }
 
 .checkStyle{
