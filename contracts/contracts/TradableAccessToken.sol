@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
-import "./Strings.sol";
 
 /*************************** Tradable Access Token **************************\
  The following is a first draft implementation of a tradable access token. 
@@ -13,7 +12,6 @@ import "./Strings.sol";
 
 
 contract TradableAccessToken {
-  using Strings for uint256;
 
   // Token name
   string private _name;
@@ -22,10 +20,10 @@ contract TradableAccessToken {
   string private _symbol;  
 
   //Mapping of tokenId to fixed owner
-  mapping(uint256 => address) private _owners;
+  mapping(bytes32 => address) private _owners;
 
   //Mapping of tokenId to current holder
-  mapping(uint256 => address) private _holders;
+  mapping(bytes32 => address) private _holders;
 
   //Mapping of balance to holder address
   mapping(address => uint256) private _balances;
@@ -38,20 +36,20 @@ contract TradableAccessToken {
       _symbol = symbol_;
     }
 
-  event Transfer(address indexed from, address indexed to, uint256 indexed tokenID);
+  event Transfer(address indexed from, address indexed to, bytes32 indexed tokenID);
 
   function balanceOf(address holder) public view virtual returns (uint256) {
         require(holder != address(0), "ERC721: balance query for the zero address");
         return _balances[holder];
     }
 
-  function ownerOf(uint256 tokenId) public view virtual returns (address) {
+  function ownerOf(bytes32 tokenId) public view virtual returns (address) {
         address owner = _owners[tokenId];
         require(owner != address(0), "ERC721: owner query for nonexistent token");
         return owner;
     }
 
-  function holderOf(uint256 tokenId) public view virtual returns (address) {
+  function holderOf(bytes32 tokenId) public view virtual returns (address) {
         address holder = _holders[tokenId];
         require(holder != address(0), "ERC721: holder query for nonexistent token");
         return holder;
@@ -65,11 +63,11 @@ contract TradableAccessToken {
         return _symbol;
     }
 
-  function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
+  function tokenURI(bytes32 tokenId) public view virtual returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
         string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId)) : "";
     }
     /**
      * @dev Base URI for computing {tokenURI}. If set, the resulting URI for each
@@ -80,18 +78,18 @@ contract TradableAccessToken {
         return "Subscription X Access Token : ";
     }
 
-  function _exists(uint256 tokenId) internal view virtual returns (bool) {
+  function _exists(bytes32 tokenId) internal view virtual returns (bool) {
         return _owners[tokenId] != address(0);
     }
 
-  function _isHolderOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
+  function _isHolderOrOwner(address spender, bytes32 tokenId) internal view virtual returns (bool) {
         require(_exists(tokenId), "ERC721: operator query for nonexistent token");
         address owner = TradableAccessToken.ownerOf(tokenId);
         address holder = TradableAccessToken.holderOf(tokenId);
         return (spender == owner || spender == holder);
     }
   //Mint token, account for owner and holder independently
-  function _mint(address to, uint256 tokenId) internal virtual {
+  function _mint(address to, bytes32 tokenId) internal virtual {
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(tokenId), "ERC721: token already minted");
 
@@ -103,7 +101,7 @@ contract TradableAccessToken {
     }
 
   //Burn Access Token
-  function _burn(uint256 tokenId) internal virtual {
+  function _burn(bytes32 tokenId) internal virtual {
         address holder = TradableAccessToken.holderOf(tokenId);
 
         _balances[holder] -= 1;
@@ -117,7 +115,7 @@ contract TradableAccessToken {
   function _transfer(
         address from,
         address to,
-        uint256 tokenId
+        bytes32 tokenId
     ) public virtual {
         require((TradableAccessToken.ownerOf(tokenId) == from) || (TradableAccessToken.holderOf(tokenId) == from), "Access Token: transfer of token that is not own");
         require(to != address(0), "Access Token: transfer to the zero address");
@@ -132,7 +130,7 @@ contract TradableAccessToken {
   // Recall Access Tokens to owners wallet
   function recall(
         address owner,
-        uint256 tokenId
+        bytes32 tokenId
     ) external virtual {
         require (TradableAccessToken.ownerOf(tokenId) == owner);
         address holder = _holders[tokenId];

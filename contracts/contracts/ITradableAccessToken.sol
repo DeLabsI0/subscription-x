@@ -11,7 +11,7 @@ pragma solidity ^0.7.0;
 
 interface TradableAccessToken {
   //Event emitted upon mint, transfer or burn
-  event Transfer(address indexed from, address indexed to, uint256 indexed tokenID);
+  event Transfer(address indexed from, address indexed to, bytes32 indexed tokenID);
 
   // Return name of access token as string
   function name() view external returns (string memory);
@@ -20,18 +20,18 @@ interface TradableAccessToken {
   function symbol() view external returns (string memory);
 
   //Return token URI as string
-  function tokenURI(uint256 tokenId) view external returns (string memory);
+  function tokenURI(bytes32 tokenId) view external returns (string memory);
 
   //Return balance of holders account
   function balanceOf(address holder) view external returns (uint256);
 
   //Return owner address of tokenId 
-  function ownerOf(uint256 tokenId) view external returns (address);
+  function ownerOf(bytes32 tokenId) view external returns (address);
   
   //Return holder address of tokenId
-  function holderOf(uint256 tokenId) view external returns (address);
+  function holderOf(bytes32 tokenId) view external returns (address);
 
   //Transfer tokenId and balance from one holder to another
-  function _transfer(address from, address to, uint256 tokenId) external;
+  function _transfer(address from, address to, bytes32 tokenId) external;
 
 }

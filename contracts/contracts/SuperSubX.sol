@@ -64,7 +64,7 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
      *************************************************************************/
     event ReceiverChanged(address indexed _receiver);
 
-
+    //View the address receiving the outstream
     function currentReceiver()
         external view
         returns (
@@ -79,26 +79,12 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
         }
     }
 
-    function deleteIncorrectFlow(address memory badFlowX) internal virtual {
-        _host.callAgreement(
-            _cfa,
-            abi.encodeWithSelector(
-                _cfa.deleteFlow.selector,
-                _acceptedToken,
-                badFlowX,
-                address(this),
-                new bytes(0)
-            ),
-            "0x"
-        );
-    }
-
-    function changeSubXRate(int96 memory newFlowX) public virtual returns (int96) {
+    //Change the Sub price
+    function changeSubXRate(int96 newFlowX) public virtual returns (int96) {
         require(msg.sender == _receiver);
         _subFlowRateX = newFlowX;
         return _subFlowRateX;
     }
-
 
     /// @dev If a new stream is opened, or an existing one is opened
     function _updateOutflow(bytes calldata ctx)
@@ -215,23 +201,18 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
         returns (bytes memory newCtx)
     {
         // Destructure address of subscriber and flowRate from agreement data
-        ( address subscriberX,,int96 subFlow ) = abi.decode(_agreementData, (address, address, int96));
-
+        ( address subscriberX, address receiver ) = abi.decode(_agreementData, (address, address));
+        (,int96 outFlowRate,,) = _cfa.getFlow(_acceptedToken, subscriberX, receiver);
         //If correct flowRate Mint access tokens, approve sub
-        if (subFlow == _subFlowRateX) {
+        require (outFlowRate == _subFlowRateX);
 
-            _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '0')));
-            _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '1')));
-            _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '2')));
-            _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '3')));
-
-            return _updateOutflow(_ctx);
-        }
-
-        //Else delete flow, update outflow
-        deleteIncorrectFlow(subscriberX);
+        _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '0')));
+        _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '1')));
+        _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '2')));
+        _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '3')));
 
         return _updateOutflow(_ctx);
+        
     }
 
     function afterAgreementUpdated(
@@ -248,15 +229,14 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
         returns (bytes memory newCtx)
     {
         //Destructuring subscriber address and flowrate from agreement data
-        (address subcriberX,,int96 subFlowRate) = abi.decode(_agreementData, (address, address, int96));
-
-        //If the flow rate is still the required rate do nothing
-        if(subFlowRate == _subFlowRateX) return _updateOutflow(_ctx);
+        ( address subscriberX, address receiver ) = abi.decode(_agreementData, (address, address));
+        (,int96 outFlowRate,,) = _cfa.getFlow(_acceptedToken, subscriberX, receiver);
         
-        //Else delete flow with incorrect flowrate
-        deleteIncorrectFlow(subscriberX);
+        //Require flowRate
+        require(outFlowRate == _subFlowRateX);  
 
         return _updateOutflow(_ctx);
+    
     }
 
     function afterAgreementTerminated(
