@@ -55,7 +55,7 @@ export const AccountPanel = () => {
   }
 
   useEffect(():any=>{
-    if (active){
+    if (active && (chainId === 80001)){
       getSymbol().then(({ daiSymbol, daiXSymbol})=>{
         setDaiSymbol(daiSymbol);
         setDaiXSymbol(daiXSymbol);
@@ -71,6 +71,41 @@ export const AccountPanel = () => {
   
   return(
     <>
+      {chainId === 5 && <div style={{
+                        display: 'grid',
+                        gridTemplate: 'columns',
+                        position: 'absolute', 
+                        top: '0%', 
+                        height: 'cover', 
+                        fontSize: '1.8rem',
+                        fontWeight: 'bold', 
+                        alignContent: 'center', 
+                        textAlign: 'center'}}>
+                      <h2 style={{marginBottom: '0'}}>SubscriptionX</h2>
+                      <hr style={{width:'80%', borderColor: 'black' }}/>
+                          
+                      You must be connected to the polygon network.
+                        
+                      <button
+                        style={{
+                        height: '2rem',
+                        position: 'absolute',
+                        bottom: '-3.5rem',
+                        right: '50%',
+                        transform: 'translate(50%)',
+                        borderRadius: '6px',
+                        border: 'solid 2px white',
+                        backgroundColor: 'black',
+                        color: 'white',
+                        cursor: 'pointer',
+              
+                        }} onClick={(e) => {
+                        e.preventDefault();
+                        window.location.href='https://docs.matic.network/docs/develop/network-details/network/';}}>
+                        <img style={{maxWidth: '65%', maxHeight: '65%', float: 'left', marginRight: '.3rem'}} src="./polygon.png" />
+                        <span>Polygon Network</span></button></div>}
+      
+      {chainId === 80001 && (<div>
       <div style={{textAlign:'center'}}>
         <h2 style={{marginBottom:'0', paddingBottom:'0'}}>Account:  {account === null
           ? '-'
@@ -94,8 +129,8 @@ export const AccountPanel = () => {
         </div>
         <p className={styles.symbolBox}>{`Token : ${daiSymbol}`}</p>
         <p className={styles.symbolBox}>{`Token : ${daiXSymbol}`}</p>
-      </div>
-      
+      </div>    
+        <h4 style={{alignSelf: 'center', justifyContent: 'center', textAlign: 'center', width: '100%', fontWeight: 'bold'}}>Super Tokens allow you to stream using SuperFluid protocol.</h4> 
         {(active || error) && (
           <button
             style={{
@@ -116,7 +151,8 @@ export const AccountPanel = () => {
               }}>
             Get Super Tokens
           </button>
-        )}
+        )}</div>
+        )}  
       
     </>
   )
