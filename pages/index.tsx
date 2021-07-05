@@ -1,10 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
-import ethers from 'ethers'
+import { ethers } from 'ethers'
 import { Web3Provider } from '@ethersproject/providers'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import SubPortal from '../components/SubPortal'
+
+const _subXContractAddress = '0xF5a1bC6951AF7bC729321B5744a270F53096F627';
+
+const abiSubx = [
+  //Return balance of holders account
+  "function balanceOf(address holder) view external returns (uint256)",
+  //Transfer tokenId and balance from one holder to another
+  "function _transfer(address from, address to, bytes32 tokenId) external"
+];
+
+
 
 
 function getLibrary(provider: any): Web3Provider{
@@ -23,8 +34,10 @@ export default function SubscriptionX(){
 
 function App() {
   const context = useWeb3React<Web3Provider>()
-  const {active, error} = context
+  const {active, error, library, account} = context
   const [modalView, setModalView] = useState(false);
+  const [hasSubX, setHasSubX] = useState(false);
+  const subXContract = new ethers.Contract(_subXContractAddress, abiSubx, library);
 
 
   
@@ -35,6 +48,15 @@ function App() {
     setModalView(false);
   }
 
+  useEffect(()=>{
+    if(active){
+    subXContract.balanceOf(account).then((subXBal)=>{
+      if (subXBal.toNumber() > 0) {setHasSubX(true)}
+      else{setHasSubX(false)};
+    }).catch(error=>console.error(error));
+  }else{setHasSubX(false)};
+  },[active, library, modalView, account]);
+
   return (
       <div className={styles.container}>
         <Head>
@@ -43,6 +65,9 @@ function App() {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <button className={styles.connectButton} onClick={showModal} >Connect {active ? '🟢' : error ? '🔴' : '🟠'}</button>
+
+        {(hasSubX === true) && <div style={{display: 'grid', gridTemplate: 'column', justifyContent: 'center', marginTop: '35vh'}}><iframe width="560" height="315" src="https://www.youtube.com/embed/sIWTp6EK4J4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>}
+
         <SubPortal show={modalView} handleClose={handleClose}/> 
       </div>
 )}

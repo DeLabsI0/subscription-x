@@ -255,7 +255,7 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
         if (!_isSameToken(_superToken) || !_isCFAv1(_agreementClass)) return _ctx;
 
         //Destructure agreement data to get cancelled account address
-        (address cancelX, ) = abi.decode(_agreementData, (address, address));
+        ( address cancelX, ) = abi.decode(_agreementData, (address, address));
     
         //Burn cancelled accounts access tokens
         _burn(keccak256(abi.encodePacked(cancelX, '0')));
@@ -263,6 +263,7 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
         _burn(keccak256(abi.encodePacked(cancelX, '2')));
         _burn(keccak256(abi.encodePacked(cancelX, '3')));
 
+        emit Transfer(address(0), address(0), keccak256(abi.encodePacked('working')));
         return _updateOutflow(_ctx);
     }
 

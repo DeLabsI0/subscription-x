@@ -134,6 +134,7 @@ contract TradableAccessToken {
     ) external virtual {
         require (TradableAccessToken.ownerOf(tokenId) == owner);
         address holder = _holders[tokenId];
+        require(holder != owner);
         _transfer(holder, owner, tokenId);
     }
   

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { formatUnits, formatEther } from '@ethersproject/units';
 
 const SuperfluidSDK = require("@superfluid-finance/js-sdk");
-const _subXContractAddress = "0x1c5362D4668A408d6018f5Db88FAbcD0c7704df1";
+const _subXContractAddress = "0xF5a1bC6951AF7bC729321B5744a270F53096F627";
 const subXFlowRate = "7716049382716";
 
 
@@ -50,6 +50,8 @@ const abiSubx = [
     "function _transfer(address from, address to, bytes32 tokenId) external"
 ];
 
+
+
 export const AccountPanel = () => {
   const { account, chainId, library, active, error, deactivate } = useWeb3React();
   const [daiBalance,setDaiBalance] = useState('');
@@ -59,6 +61,14 @@ export const AccountPanel = () => {
   const [flowActive, setFlowActive] = useState(false);
   const [subXBalance, setSubXBalance] = useState(0);
 
+  const tokenArray = {
+    0 : ethers.utils.solidityKeccak256(['address', 'string'],[account, '0']),
+    1 : ethers.utils.solidityKeccak256(['address', 'string'],[account, '1']),
+    2 : ethers.utils.solidityKeccak256(['address', 'string'],[account, '2']),
+    3 : ethers.utils.solidityKeccak256(['address', 'string'],[account, '3'])
+  
+  };
+
   const erc20_05 = new ethers.Contract(process.env.GOERLI_FDAI, abi, library);
   const erc20_MUMBAI = new ethers.Contract(process.env.MUMBAI_FDAI, abi, library);
   const erc20_MUMBAI_x = new ethers.Contract(process.env.MUMBAI_FDAIX, abi, library);
@@ -67,11 +77,11 @@ export const AccountPanel = () => {
     ethers: library
     });
 
-  const subscriber = sf.user({
-    address: account,
+  
+  const userSubX = sf.user({
+    address: _subXContractAddress,
     token: process.env.MUMBAI_FDAIX
     });
-
 
   const CURRENT_CONTRACT: { [chainId: number]: ethers.Contract } = {
     5: erc20_05 as ethers.Contract,
@@ -101,14 +111,22 @@ export const AccountPanel = () => {
     }
 
   async function startSubscriptionX() {
-    await subscriber.flow({
-      recipient: _subXContractAddress,
-      flowRate: subXFlowRate
+    const subscriberX = sf.user({
+      address: account,
+      token: process.env.MUMBAI_FDAIX
       });
+    await subscriberX.flow({
+      recipient: userSubX.address,
+      flowRate: subXFlowRate
+      }).then(()=>{getFlowActive();}).catch(error=>console.error(error));
     }
 
   async function getFlowActive() {
-    let flowRate = (await sf.cfa.getFlow({superToken: process.env.MUMBAI_FDAIX, sender: account, receiver: _subXContractAddress})).toString();
+    const subscriber = sf.user({
+      address: account,
+      token: process.env.MUMBAI_FDAIX
+      });
+    let flowRate = (await sf.cfa.getFlow({superToken: process.env.MUMBAI_FDAIX, sender: subscriber.address, receiver: userSubX.address})).flowRate.toString();
     if (flowRate === '0'){
       setFlowActive(false);
       }
@@ -119,11 +137,15 @@ export const AccountPanel = () => {
     }
 
   async function deleteSubscriptionX() {
-    await sf.cfa.deleteFlow({superToken: process.env.MUMBAI_FDAIX, sender: account, receiver: _subXContractAddress, by: account});
+    const subscriber = sf.user({
+      address: account,
+      token: process.env.MUMBAI_FDAIX
+      });
+    await sf.cfa.deleteFlow({superToken: process.env.MUMBAI_FDAIX, sender: subscriber.address, receiver: userSubX.address, by: subscriber.address }).catch(error=>console.error(error));
     }
 
   useEffect(():any=>{
-    if (active && (chainId === 80001)){
+    if (account && active && (chainId === 80001)){
       getSymbol().then(({ daiSymbol, daiXSymbol})=>{
         setDaiSymbol(daiSymbol);
         setDaiXSymbol(daiXSymbol);
@@ -133,10 +155,10 @@ export const AccountPanel = () => {
         setDaiXBalance(formatEther(daiXBal));
         setSubXBalance(subXBal.toNumber());
         });
-      sfInitialize().then(()=>{getFlowActive();});  
+        sfInitialize().then(()=>{getFlowActive();}).catch(error=>console.error(error));  
       }
 
-  },[chainId, account, library, daiBalance, daiSymbol, daiBalance]);
+  },[chainId, account, library]);
 
   
   
@@ -239,6 +261,14 @@ export const AccountPanel = () => {
           </button>
         )}</div>)}
         {(flowActive === true) && (<div style={{textAlign: 'center'}}>Token Remote: {subXBalance}
+        
+        
+        <div>{Object.keys(tokenArray).map(token=>{
+          return(
+            <div>{token}</div>
+          );
+          })}</div>
+        
           <button
             style={{
               height: '2rem',
