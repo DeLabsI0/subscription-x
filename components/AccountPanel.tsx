@@ -6,7 +6,7 @@ import Image from "next/image";
 import { formatUnits, formatEther } from '@ethersproject/units';
 
 const SuperfluidSDK = require("@superfluid-finance/js-sdk");
-const _subXContractAddress = "0xF5a1bC6951AF7bC729321B5744a270F53096F627";
+const _subXContractAddress = "0xd20AD5394D40a5aaFFD30A274d2e189dcDd07Ace";
 const subXFlowRate = "7716049382716";
 
 
@@ -111,6 +111,7 @@ export const AccountPanel = () => {
     }
 
   async function startSubscriptionX() {
+    if(!account) return;
     const subscriberX = sf.user({
       address: account,
       token: process.env.MUMBAI_FDAIX
@@ -126,8 +127,9 @@ export const AccountPanel = () => {
       address: account,
       token: process.env.MUMBAI_FDAIX
       });
-    let flowRate = (await sf.cfa.getFlow({superToken: process.env.MUMBAI_FDAIX, sender: subscriber.address, receiver: userSubX.address})).flowRate.toString();
-    if (flowRate === '0'){
+    let flowRate = (await sf.cfa.getFlow({superToken: process.env.MUMBAI_FDAIX, sender: subscriber.address, receiver: userSubX.address}).catch(error=>console.error(error))).flowRate.toString();
+    if ((flowRate === '0') || (flowRate === undefined))
+     {
       setFlowActive(false);
       }
     else {
@@ -217,7 +219,7 @@ export const AccountPanel = () => {
         </div>
         <p className={styles.symbolBox}>{`SYM: ${daiXSymbol}`}</p>
       </div></div>)}
-    {(daiXBalance === '0.00') && (flowActive === false) && (<div>
+    {(daiXBalance === '0.0') && (flowActive === false) && (<div>
         <h5 style={{width: '100%', fontWeight: 'bold', paddingLeft: '2rem', paddingRight: '2rem', marginTop: '1rem', textAlign:'center', alignContent: 'center', justifyContent: 'center'}}>You require more Super Tokens!!!</h5> 
         {(active || error) && (
           <button
@@ -240,7 +242,7 @@ export const AccountPanel = () => {
             Get Super Tokens
           </button>
         )}</div>)}
-    {(daiXBalance !== '0.00') && (flowActive === false) && (<div>
+    {(daiXBalance !== '0.0') && (flowActive === false) && (<div>
         <h5 style={{width: '100%', fontWeight: 'bold', paddingLeft: '2rem', paddingRight: '2rem', marginTop: '1rem', textAlign:'center', alignContent: 'center', justifyContent: 'center'}}>SubscriptionX: 20 fDAIx monthly rate</h5> 
         {(active || error) && (
           <button
@@ -260,12 +262,12 @@ export const AccountPanel = () => {
             Start SubscriptionX
           </button>
         )}</div>)}
-        {(flowActive === true) && (<div style={{textAlign: 'center'}}>Token Remote: {subXBalance}
+        {(flowActive === true) && (<div style={{textAlign: 'center', marginTop: '0'}}><div style={{fontWeight: 'bold', marginTop: '0'}}>Token Remote: {subXBalance}</div>
         
         
-        <div>{Object.keys(tokenArray).map(token=>{
+        <div>{Object.values(tokenArray).map((token)=>{
           return(
-            <div>{token}</div>
+            <div>{token.substring(0, 6)}...{token.substring(0, 4)} : <button className={styles.remoteButton}>Send</button><button className={styles.remoteButton}>Recall</button></div>
           );
           })}</div>
         

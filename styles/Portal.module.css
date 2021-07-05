@@ -120,3 +120,10 @@
     align-self: center;
     transform: translate(0%, 5%);
 }
+
+.remoteButton{
+    border: solid 1px white;
+    background-color: black;
+    color: white;
+    border-radius: 6px;
+}

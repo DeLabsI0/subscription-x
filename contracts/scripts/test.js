@@ -3,7 +3,7 @@ const hre = require("hardhat");
 async function main() {
 
   const SuperSubX = await hre.ethers.getContractFactory("SuperSubX");
-  const CONTRACT_ADDRESS = "0x0f1068A735B3be9b24A8846e33ed6ffcD9F226fD";
+  const CONTRACT_ADDRESS = "0xF5a1bC6951AF7bC729321B5744a270F53096F627";
   const contract = SuperSubX.attach(CONTRACT_ADDRESS);
   
   const name = await contract.name();

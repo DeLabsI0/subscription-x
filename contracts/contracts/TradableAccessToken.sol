@@ -39,19 +39,19 @@ contract TradableAccessToken {
   event Transfer(address indexed from, address indexed to, bytes32 indexed tokenID);
 
   function balanceOf(address holder) public view virtual returns (uint256) {
-        require(holder != address(0), "ERC721: balance query for the zero address");
+        require(holder != address(0), "Access Token: balance query for the zero address");
         return _balances[holder];
     }
 
   function ownerOf(bytes32 tokenId) public view virtual returns (address) {
         address owner = _owners[tokenId];
-        require(owner != address(0), "ERC721: owner query for nonexistent token");
+        require(owner != address(0), "Access Token: owner query for nonexistent token");
         return owner;
     }
 
   function holderOf(bytes32 tokenId) public view virtual returns (address) {
         address holder = _holders[tokenId];
-        require(holder != address(0), "ERC721: holder query for nonexistent token");
+        require(holder != address(0), "Access Token: holder query for nonexistent token");
         return holder;
     }
 
@@ -64,7 +64,7 @@ contract TradableAccessToken {
     }
 
   function tokenURI(bytes32 tokenId) public view virtual returns (string memory) {
-        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+        require(_exists(tokenId), "Access Token: URI query for nonexistent token");
 
         string memory baseURI = _baseURI();
         return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId)) : "";
@@ -83,15 +83,15 @@ contract TradableAccessToken {
     }
 
   function _isHolderOrOwner(address spender, bytes32 tokenId) internal view virtual returns (bool) {
-        require(_exists(tokenId), "ERC721: operator query for nonexistent token");
+        require(_exists(tokenId), "Access Token: operator query for nonexistent token");
         address owner = TradableAccessToken.ownerOf(tokenId);
         address holder = TradableAccessToken.holderOf(tokenId);
         return (spender == owner || spender == holder);
     }
   //Mint token, account for owner and holder independently
   function _mint(address to, bytes32 tokenId) internal virtual {
-        require(to != address(0), "ERC721: mint to the zero address");
-        require(!_exists(tokenId), "ERC721: token already minted");
+        require(to != address(0), "Access Token: mint to the zero address");
+        require(!_exists(tokenId), "Access Token: token already minted");
 
         _balances[to] += 1;
         _owners[tokenId] = to;
@@ -102,6 +102,7 @@ contract TradableAccessToken {
 
   //Burn Access Token
   function _burn(bytes32 tokenId) internal virtual {
+        require(_exists(tokenId));
         address holder = TradableAccessToken.holderOf(tokenId);
 
         _balances[holder] -= 1;

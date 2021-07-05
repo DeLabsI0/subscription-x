@@ -6,7 +6,7 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import SubPortal from '../components/SubPortal'
 
-const _subXContractAddress = '0xF5a1bC6951AF7bC729321B5744a270F53096F627';
+const _subXContractAddress = '0xd20AD5394D40a5aaFFD30A274d2e189dcDd07Ace';
 
 const abiSubx = [
   //Return balance of holders account
@@ -66,7 +66,7 @@ function App() {
         </Head>
         <button className={styles.connectButton} onClick={showModal} >Connect {active ? '🟢' : error ? '🔴' : '🟠'}</button>
 
-        {(hasSubX === true) && <div style={{display: 'grid', gridTemplate: 'column', justifyContent: 'center', marginTop: '35vh'}}><iframe width="560" height="315" src="https://www.youtube.com/embed/sIWTp6EK4J4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>}
+        {(hasSubX === true) && <div style={{display: 'grid', gridTemplate: 'column', justifyContent: 'center', marginTop: '35vh'}}><iframe width="560" height="315" src="https://www.youtube.com/embed/sIWTp6EK4J4" title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe></div>}
 
         <SubPortal show={modalView} handleClose={handleClose}/> 
       </div>

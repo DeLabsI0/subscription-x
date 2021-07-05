@@ -81,7 +81,7 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
 
     //Change the Sub price
     function changeSubXRate(int96 newFlowX) public virtual returns (int96) {
-        require(msg.sender == _receiver);
+        require(msg.sender == _receiver, "SuperSubX: only reciever");
         _subFlowRateX = newFlowX;
         return _subFlowRateX;
     }
@@ -204,7 +204,7 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
         ( address subscriberX, address receiver ) = abi.decode(_agreementData, (address, address));
         (,int96 outFlowRate,,) = _cfa.getFlow(_acceptedToken, subscriberX, receiver);
         //If correct flowRate Mint access tokens, approve sub
-        require (outFlowRate == _subFlowRateX);
+        require (outFlowRate == _subFlowRateX, "SuperSubX: incorrect flow rate");
 
         _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '0')));
         _mint(subscriberX, keccak256(abi.encodePacked(subscriberX, '1')));
@@ -233,7 +233,7 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
         (,int96 outFlowRate,,) = _cfa.getFlow(_acceptedToken, subscriberX, receiver);
         
         //Require flowRate
-        require(outFlowRate == _subFlowRateX);  
+        require(outFlowRate == _subFlowRateX, "SuperSubX: incorrect flow rate");  
 
         return _updateOutflow(_ctx);
     
@@ -277,13 +277,13 @@ contract SuperSubX is SuperAppBase, TradableAccessToken {
     }
 
     modifier onlyHost() {
-        require(msg.sender == address(_host), "RedirectAll: support only one host");
+        require(msg.sender == address(_host), "SuperSubX: support only one host");
         _;
     }
 
     modifier onlyExpected(ISuperToken superToken, address agreementClass) {
-        require(_isSameToken(superToken), "RedirectAll: not accepted token");
-        require(_isCFAv1(agreementClass), "RedirectAll: only CFAv1 supported");
+        require(_isSameToken(superToken), "SuperSubX: not accepted token");
+        require(_isCFAv1(agreementClass), "SuperSubX: only CFAv1 supported");
         _;
     }
 
