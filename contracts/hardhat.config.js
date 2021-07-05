@@ -24,8 +24,10 @@ module.exports = {
     hardhat: {
     },
     matic: {
-      url: "https://rpc-mainnet.maticvigil.com/v1/ea9cee5ba30e0750d787d3e181a797026994ed51",
-      accounts: ['0x'+ privateKey]
+      url: "https://rpc-mumbai.maticvigil.com/v1/ea9cee5ba30e0750d787d3e181a797026994ed51",
+      accounts: [privateKey],
+      gas: 2100000,
+      gasPrice: 8000000000
     }
   },
   solidity: {

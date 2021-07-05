@@ -36,7 +36,7 @@ export default function SubPortal(props: any){
                         <button className={styles.closeButton} onClick={props.handleClose}>
                             <FontAwesomeIcon icon={faTimes} size='xs' className={styles.xStyle}/>
                         </button>
-                        {currentPanel !== 2 && active &&
+                        {currentPanel !== 1 && active &&
                             <button className={styles.nextButton} onClick={()=>setPanel(currentPanel+1)}>
                                 <FontAwesomeIcon icon={faArrowRight} size="sm" className={styles.iconStyle} />
                             </button>

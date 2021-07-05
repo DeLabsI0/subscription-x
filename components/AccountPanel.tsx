@@ -6,6 +6,9 @@ import Image from "next/image";
 import { formatUnits, formatEther } from '@ethersproject/units';
 
 const SuperfluidSDK = require("@superfluid-finance/js-sdk");
+const _subXContractAddress = "0x1c5362D4668A408d6018f5Db88FAbcD0c7704df1";
+const subXFlowRate = "7716049382716";
+
 
 const abi = [
   // Read-Only Functions
@@ -20,58 +23,126 @@ const abi = [
   "event Transfer(address indexed from, address indexed to, uint amount)"
 ];
 
+const abiSubx = [
+
+    //Event emitted upon mint, transfer or burn
+    "event Transfer(address indexed from, address indexed to, bytes32 indexed tokenID)",
+  
+    // Return name of access token as string
+    "function name() view external returns (string memory)",
+    
+    // Return symbol of access token as string
+    "function symbol() view external returns (string memory)",
+  
+    //Return token URI as string
+    "function tokenURI(bytes32 tokenId) view external returns (string memory)",
+  
+    //Return balance of holders account
+    "function balanceOf(address holder) view external returns (uint256)",
+  
+    //Return owner address of tokenId 
+    "function ownerOf(bytes32 tokenId) view external returns (address)",
+    
+    //Return holder address of tokenId
+    "function holderOf(bytes32 tokenId) view external returns (address)",
+  
+    //Transfer tokenId and balance from one holder to another
+    "function _transfer(address from, address to, bytes32 tokenId) external"
+];
+
 export const AccountPanel = () => {
   const { account, chainId, library, active, error, deactivate } = useWeb3React();
   const [daiBalance,setDaiBalance] = useState('');
   const [daiXBalance,setDaiXBalance] = useState('');
   const [daiSymbol, setDaiSymbol] = useState('');
   const [daiXSymbol, setDaiXSymbol] = useState('');
+  const [flowActive, setFlowActive] = useState(false);
+  const [subXBalance, setSubXBalance] = useState(0);
 
   const erc20_05 = new ethers.Contract(process.env.GOERLI_FDAI, abi, library);
   const erc20_MUMBAI = new ethers.Contract(process.env.MUMBAI_FDAI, abi, library);
   const erc20_MUMBAI_x = new ethers.Contract(process.env.MUMBAI_FDAIX, abi, library);
+  const subXContract = new ethers.Contract(_subXContractAddress, abiSubx, library);
+  const sf = new SuperfluidSDK.Framework({
+    ethers: library
+    });
+
+  const subscriber = sf.user({
+    address: account,
+    token: process.env.MUMBAI_FDAIX
+    });
 
 
   const CURRENT_CONTRACT: { [chainId: number]: ethers.Contract } = {
     5: erc20_05 as ethers.Contract,
     80001: erc20_MUMBAI as ethers.Contract
-  }
+    }
 
   const CHAIN_NAME: { [chainId: number]: string } = {
     5: 'Goerli Testnet' as string,
     80001: 'Polygon Testnet (Mumbai)' as string
-  }
+    }
 
   async function getSymbol(contract?: any){
     let daiSymbol = await CURRENT_CONTRACT[chainId].symbol();
     let daiXSymbol = await erc20_MUMBAI_x.symbol();
     return {daiSymbol, daiXSymbol};
-  }
+    }
 
   async function getBalance(){
     let daiBal = await CURRENT_CONTRACT[chainId].balanceOf(account);
     let daiXBal = await erc20_MUMBAI_x.balanceOf(account);
-    return { daiBal, daiXBal }
-  }
+    let subXBal = await subXContract.balanceOf(account);
+    return { daiBal, daiXBal, subXBal }
+    }
+
+  async function sfInitialize(){
+    await sf.initialize();
+    }
+
+  async function startSubscriptionX() {
+    await subscriber.flow({
+      recipient: _subXContractAddress,
+      flowRate: subXFlowRate
+      });
+    }
+
+  async function getFlowActive() {
+    let flowRate = (await sf.cfa.getFlow({superToken: process.env.MUMBAI_FDAIX, sender: account, receiver: _subXContractAddress})).toString();
+    if (flowRate === '0'){
+      setFlowActive(false);
+      }
+    else {
+      setFlowActive(true);
+      }
+      console.log(`This is flow ${flowRate}`);
+    }
+
+  async function deleteSubscriptionX() {
+    await sf.cfa.deleteFlow({superToken: process.env.MUMBAI_FDAIX, sender: account, receiver: _subXContractAddress, by: account});
+    }
 
   useEffect(():any=>{
     if (active && (chainId === 80001)){
       getSymbol().then(({ daiSymbol, daiXSymbol})=>{
         setDaiSymbol(daiSymbol);
         setDaiXSymbol(daiXSymbol);
-      });
-      getBalance().then(({ daiBal, daiXBal })=>{
+        });
+      getBalance().then(({ daiBal, daiXBal, subXBal })=>{
         setDaiBalance(formatEther(daiBal));
         setDaiXBalance(formatEther(daiXBal));
-      })
-    }
+        setSubXBalance(subXBal.toNumber());
+        });
+      sfInitialize().then(()=>{getFlowActive();});  
+      }
+
   },[chainId, account, library, daiBalance, daiSymbol, daiBalance]);
 
   
   
   return(
     <>
-      {chainId === 5 && <div style={{
+      {chainId !== 80001 && <div style={{
                         display: 'grid',
                         gridTemplate: 'columns',
                         position: 'absolute', 
@@ -114,23 +185,18 @@ export const AccountPanel = () => {
           : ''}
         </h2>
         <h5 style={{marginTop: 0}}>{`Chain : ${CHAIN_NAME[chainId]}`}</h5>
-          
-        
       </div>
-      <div style={{display: 'flex', flexWrap: 'wrap', flexDirection: 'row', flexGrow: 2, height: 'cover', textAlign:'center'}}>
+      {(flowActive === false) && (<div>
+      <div style={{display: 'grid', gridTemplate: 'column', height: 'cover', textAlign:'center', alignContent: 'center', justifyContent: 'center'}}>
+        
         <div className={styles.daiBalance}>
-          <img src="./dai.png" className={styles.daiPic} />
-          : {daiBalance}
-          
-        </div>
-        <div className={styles.daiBalance} style={{borderLeft: 'solid 2px black'}}>
           <img src="./daix.png" className={styles.daiPic} />
-          : {daiXBalance}
+          : {daiXBalance.substring(0,6)}
         </div>
-        <p className={styles.symbolBox}>{`Token : ${daiSymbol}`}</p>
-        <p className={styles.symbolBox}>{`Token : ${daiXSymbol}`}</p>
-      </div>    
-        <h4 style={{alignSelf: 'center', justifyContent: 'center', textAlign: 'center', width: '100%', fontWeight: 'bold'}}>Super Tokens allow you to stream using SuperFluid protocol.</h4> 
+        <p className={styles.symbolBox}>{`SYM: ${daiXSymbol}`}</p>
+      </div></div>)}
+    {(daiXBalance === '0.00') && (flowActive === false) && (<div>
+        <h5 style={{width: '100%', fontWeight: 'bold', paddingLeft: '2rem', paddingRight: '2rem', marginTop: '1rem', textAlign:'center', alignContent: 'center', justifyContent: 'center'}}>You require more Super Tokens!!!</h5> 
         {(active || error) && (
           <button
             style={{
@@ -151,7 +217,48 @@ export const AccountPanel = () => {
               }}>
             Get Super Tokens
           </button>
-        )}</div>
+        )}</div>)}
+    {(daiXBalance !== '0.00') && (flowActive === false) && (<div>
+        <h5 style={{width: '100%', fontWeight: 'bold', paddingLeft: '2rem', paddingRight: '2rem', marginTop: '1rem', textAlign:'center', alignContent: 'center', justifyContent: 'center'}}>SubscriptionX: 20 fDAIx monthly rate</h5> 
+        {(active || error) && (
+          <button
+            style={{
+              height: '2rem',
+              position: 'absolute',
+              bottom: '1rem',
+              right: '50%',
+              transform: 'translate(50%)',
+              borderRadius: '6px',
+              border: 'solid 2px white',
+              backgroundColor: 'black',
+              color: 'white',
+              cursor: 'pointer',
+              
+            }} onClick={startSubscriptionX}>
+            Start SubscriptionX
+          </button>
+        )}</div>)}
+        {(flowActive === true) && (<div style={{textAlign: 'center'}}>Token Remote: {subXBalance}
+          <button
+            style={{
+              height: '2rem',
+              position: 'absolute',
+              bottom: '1rem',
+              right: '50%',
+              transform: 'translate(50%)',
+              borderRadius: '6px',
+              border: 'solid 2px white',
+              backgroundColor: 'black',
+              color: 'white',
+              cursor: 'pointer',
+              
+            }} onClick={deleteSubscriptionX}>
+            Cancel SubscriptionX
+          </button>
+        </div>)}
+        
+        
+        </div>
         )}  
       
     </>

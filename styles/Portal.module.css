@@ -4,7 +4,7 @@
     flex-direction: column;
     min-width: 400px;
     min-height: 280px;
-    max-width: 40vw;
+    max-width: 400px;
     left: 50vw;
     top: 50vh;
     transform: translate(-50%, -50%);
@@ -96,14 +96,14 @@
 
 .daiBalance {
     display: flex;
-    margin-right: 0;
-    flex-basis: 50%;
-    flex-grow: 4;
     align-items: center;
     flex-grow: 4;
+    float: center;
     font-size: 2rem;
-    align-self: stretch;
-    padding-right: 0;
+    text-align: center;
+    align-content: stretch;
+    justify-content: center;
+    transform: translate(-5%);
 }
 
 .symbolBox {
@@ -111,14 +111,12 @@
     margin: 0;
     text-align: center;
     align-content: center;
-    align-self: flex-start;
-    flex-basis: 50%;
 }
 
 .daiPic{
     width: 15%;
-    margin-left: 2rem;
+    margin-left: 1rem;
     margin-right: 1rem;
-    float: left;
+    align-self: center;
     transform: translate(0%, 5%);
 }
