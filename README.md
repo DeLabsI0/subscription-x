@@ -1,3 +1,16 @@
+https://www.youtube.com/watch?v=XTnUGOzId1M&feature=emb_title
+
+Description
+The project uses superfluid streams and the callbacks built in to the protocol to mint access tokens to the account starting a stream. Tokens are used for access to subscription content and can be held by others with the owner maintaining the ability to transfer or recall the token to their own account. Ending or altering the stream will burn the tokens.
+
+SubscriptionX showcase
+
+How it's made
+The frontend is done in typescript, react, web3-react, ethers and the superfluid sdk. The back end in consists of a Superfluid app and tokens contract in solidity, hardhat, ethers. This is my first project ever and I've only been coding for a few months so I feel very good about what I was able to accomplish.
+
+Technologies used
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
